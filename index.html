@@ -57,13 +57,13 @@
 
         .hero-content .tagline {
             font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             font-weight: 400;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.15em;
             text-transform: uppercase;
             color: #F8EAD7;
-            line-height: 1.8;
-            margin-bottom: 2rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
         }
 
         .hero-content label {
@@ -99,22 +99,26 @@
             -webkit-text-fill-color: #3e0f15;
         }
 
-        .hero-content button:hover {
+        .hero-content button:hover:not(:disabled) {
             background: #ffffff;
         }
 
-        .hero-content .success-message {
-            background: #F8EAD7;
-            color: #3e0f15;
+        .hero-content button:disabled {
+            cursor: default;
+            opacity: 0.9;
         }
 
         .hero-content .address {
             color: #F8EAD7;
-            margin-top: 2rem;
+            margin-top: 1.5rem;
             text-transform: uppercase;
             font-weight: 400;
             letter-spacing: 0.1em;
             font-size: 0.8rem;
+        }
+
+        .hero-content .address + .address {
+            margin-top: 0.5rem;
         }
 
         .hero-content .address a {
@@ -142,12 +146,12 @@
 
         form {
             background: transparent;
-            padding: 2rem 0;
+            padding: 1rem 0;
             margin-bottom: 0;
         }
 
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             text-align: left;
         }
 
@@ -198,13 +202,6 @@
 
         .address a:hover {
             text-decoration: underline;
-        }
-
-        .success-message {
-            display: none;
-            padding: 1rem;
-            border-radius: 0;
-            margin-top: 1rem;
         }
 
         .faq {
@@ -274,7 +271,7 @@
                             type="email"
                             id="email"
                             name="email"
-                            placeholder="din@email.se"
+                            placeholder="exempel@email.se"
                             required
                         >
                     </div>
@@ -292,11 +289,7 @@
                         >
                     </div>
 
-                    <button type="submit"><span>Sätt mig på väntelistan</span></button>
-
-                    <div class="success-message" id="success">
-                        Tack! Vi hör av oss så fort vi har torkat av borden.
-                    </div>
+                    <button type="submit"><span>Skriv upp mig på intresselistan</span></button>
                 </form>
 
                 <p class="address">
@@ -304,6 +297,7 @@
                         Posthusgatan 1C, 761 30 Norrtälje
                     </a>
                 </p>
+                <p class="address">Öppettider: Tisdag - Fredag 16:30 - 23:00</p>
             </div>
         </div>
     </div>
@@ -350,8 +344,14 @@
 
             const email = document.getElementById('email').value;
             const guests = document.getElementById('guests').value;
+            const button = this.querySelector('button');
+            const buttonSpan = button.querySelector('span');
+            const originalText = buttonSpan.textContent;
 
             try {
+                buttonSpan.textContent = 'Skickar...';
+                button.disabled = true;
+
                 await fetch('https://n8n-latest-s3zs.onrender.com/webhook/waiting-list', {
                     method: 'POST',
                     headers: {
@@ -364,19 +364,24 @@
                     })
                 });
 
-                // Show success message
-                document.getElementById('success').style.display = 'block';
+                // Show success in button
+                buttonSpan.textContent = 'Tack! Vi återkommer så fort vi är redo!';
 
                 // Reset form
                 this.reset();
 
-                // Hide success message after 5 seconds
+                // Reset button after 4 seconds
                 setTimeout(() => {
-                    document.getElementById('success').style.display = 'none';
-                }, 5000);
+                    buttonSpan.textContent = originalText;
+                    button.disabled = false;
+                }, 4000);
             } catch (error) {
                 console.error('Error:', error);
-                alert('Något gick fel. Försök igen!');
+                buttonSpan.textContent = 'Något gick fel, försök igen';
+                button.disabled = false;
+                setTimeout(() => {
+                    buttonSpan.textContent = originalText;
+                }, 3000);
             }
         });
     </script>
