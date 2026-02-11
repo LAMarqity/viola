@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <title>Presentkort Admin - Viola</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #E7E2D9;
+            color: #3e0f15;
+            min-height: 100vh;
+        }
+
+        /* ---- PIN Screen ---- */
+        .pin-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .pin-box {
+            text-align: center;
+            max-width: 320px;
+            width: 100%;
+        }
+
+        .pin-box h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #800020;
+            margin-bottom: 0.5rem;
+        }
+
+        .pin-box p {
+            font-size: 0.85rem;
+            color: #948A6F;
+            margin-bottom: 1.5rem;
+        }
+
+        .pin-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.5rem;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+            letter-spacing: 0.5em;
+            border: 2px solid #BEAF97;
+            background: white;
+            color: #3e0f15;
+        }
+
+        .pin-input:focus {
+            outline: none;
+            border-color: #800020;
+        }
+
+        .pin-error {
+            color: #cc0000;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+            display: none;
+        }
+
+        /* ---- Main App ---- */
+        .app {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .app-header {
+            background: #3e0f15;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .app-header img {
+            width: 80px;
+            filter: brightness(0) invert(1) opacity(0.9);
+        }
+
+        .app-header .logout-btn {
+            background: none;
+            border: 1px solid rgba(248, 234, 215, 0.3);
+            color: #F8EAD7;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .app-body {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* ---- Lookup ---- */
+        .lookup-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .lookup-section label {
+            display: block;
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            font-size: 0.75rem;
+            color: #800020;
+            margin-bottom: 0.3rem;
+        }
+
+        .lookup-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .lookup-row input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            border: 2px solid #BEAF97;
+            background: white;
+            color: #3e0f15;
+            text-transform: uppercase;
+        }
+
+        .lookup-row input:focus {
+            outline: none;
+            border-color: #800020;
+        }
+
+        .lookup-row input::placeholder {
+            color: #BEAF97;
+            text-transform: none;
+        }
+
+        .lookup-row button {
+            padding: 0.8rem 1.5rem;
+            background: #800020;
+            color: #F8EAD7;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+        }
+
+        .lookup-row button:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+
+        /* ---- Card Result ---- */
+        .card-result {
+            display: none;
+            background: white;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .card-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .card-status.active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .card-status.redeemed {
+            background: #fce4ec;
+            color: #c62828;
+        }
+
+        .card-status.expired {
+            background: #f5f5f5;
+            color: #757575;
+        }
+
+        .card-balance {
+            font-family: 'Fraunces', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #800020;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-original {
+            font-size: 0.8rem;
+            color: #948A6F;
+            margin-bottom: 1rem;
+        }
+
+        .card-details {
+            border-top: 1px solid #E7E2D9;
+            padding-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            font-size: 0.85rem;
+        }
+
+        .card-detail-row .label {
+            color: #948A6F;
+        }
+
+        .card-detail-row .value {
+            font-weight: 500;
+        }
+
+        /* ---- Redeem ---- */
+        .redeem-section {
+            border-top: 1px solid #E7E2D9;
+            padding-top: 1rem;
+        }
+
+        .redeem-section h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #800020;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .redeem-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .redeem-row input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            border: 2px solid #BEAF97;
+            background: white;
+            color: #3e0f15;
+        }
+
+        .redeem-row input:focus {
+            outline: none;
+            border-color: #800020;
+        }
+
+        .redeem-row button {
+            padding: 0.8rem 1.5rem;
+            background: #800020;
+            color: #F8EAD7;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+        }
+
+        .redeem-row button:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+
+        .redeem-msg {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .redeem-msg.success {
+            color: #2e7d32;
+        }
+
+        .redeem-msg.error {
+            color: #cc0000;
+        }
+
+        /* ---- Transaction History ---- */
+        .tx-history {
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .tx-history h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #800020;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .tx-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0ece5;
+            font-size: 0.8rem;
+        }
+
+        .tx-item .tx-amount {
+            font-weight: 500;
+            color: #800020;
+        }
+
+        .tx-item .tx-meta {
+            color: #948A6F;
+        }
+
+        .not-found {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: #948A6F;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- PIN Screen -->
+    <div class="pin-screen" id="pin-screen">
+        <div class="pin-box">
+            <h1>Viola Admin</h1>
+            <p>Ange PIN-kod för att fortsätta</p>
+            <input type="password" class="pin-input" id="pin-input" maxlength="6" inputmode="numeric" autofocus>
+            <div class="pin-error" id="pin-error">Felaktig PIN-kod</div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app" id="app">
+        <div class="app-header">
+            <img src="Viola_Burgundy.svg" alt="Viola">
+            <button class="logout-btn" id="logout-btn">Logga ut</button>
+        </div>
+
+        <div class="app-body">
+            <div class="lookup-section">
+                <label for="code-input">Sök presentkort</label>
+                <div class="lookup-row">
+                    <input type="text" id="code-input" placeholder="GIFT-XXXX-XXXX">
+                    <button id="lookup-btn">Sök</button>
+                </div>
+            </div>
+
+            <div class="not-found" id="not-found">Inget presentkort hittades med den koden.</div>
+
+            <div class="card-result" id="card-result">
+                <span class="card-status" id="card-status"></span>
+                <div class="card-balance" id="card-balance"></div>
+                <div class="card-original" id="card-original"></div>
+
+                <div class="card-details">
+                    <div class="card-detail-row">
+                        <span class="label">Kod</span>
+                        <span class="value" id="card-code"></span>
+                    </div>
+                    <div class="card-detail-row">
+                        <span class="label">Mottagare</span>
+                        <span class="value" id="card-recipient"></span>
+                    </div>
+                    <div class="card-detail-row">
+                        <span class="label">Köpare</span>
+                        <span class="value" id="card-buyer"></span>
+                    </div>
+                    <div class="card-detail-row">
+                        <span class="label">Skapad</span>
+                        <span class="value" id="card-created"></span>
+                    </div>
+                    <div class="card-detail-row">
+                        <span class="label">Giltig till</span>
+                        <span class="value" id="card-expires"></span>
+                    </div>
+                </div>
+
+                <div class="redeem-section" id="redeem-section">
+                    <h3>Lös in</h3>
+                    <div class="redeem-row">
+                        <input type="number" id="redeem-amount" min="1" placeholder="Belopp (kr)">
+                        <button id="redeem-btn">Lös in</button>
+                    </div>
+                    <div class="redeem-msg" id="redeem-msg"></div>
+                </div>
+
+                <div class="tx-history" id="tx-history">
+                    <h3>Historik</h3>
+                    <div id="tx-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://nssyzyjtmhlriyilgddf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zc3l6eWp0bWhscml5aWxnZGRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4Mzc4NzYsImV4cCI6MjA4NjQxMzg3Nn0.D-kA6ibSUlGtawOeetGDrvDB8xBN9gFXiA6EmiyfoeQ';
+
+        let storedPin = null;
+        let currentCard = null;
+
+        // ---- PIN Auth ----
+        const pinInput = document.getElementById('pin-input');
+        const pinError = document.getElementById('pin-error');
+
+        pinInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter' && pinInput.value.length >= 4) {
+                verifyPin(pinInput.value);
+            }
+        });
+
+        async function verifyPin(pin) {
+            try {
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/verify-pin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin }),
+                });
+                const data = await res.json();
+                if (data.valid) {
+                    storedPin = pin;
+                    document.getElementById('pin-screen').style.display = 'none';
+                    document.getElementById('app').style.display = 'block';
+                    // Check for code in URL (from QR scan)
+                    const urlCode = new URLSearchParams(window.location.search).get('code');
+                    if (urlCode) {
+                        document.getElementById('code-input').value = urlCode;
+                        lookupCard(urlCode);
+                    }
+                } else {
+                    pinError.style.display = 'block';
+                    pinInput.value = '';
+                    pinInput.focus();
+                }
+            } catch {
+                pinError.textContent = 'Kunde inte ansluta';
+                pinError.style.display = 'block';
+            }
+        }
+
+        // ---- Logout ----
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            storedPin = null;
+            currentCard = null;
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('pin-screen').style.display = 'flex';
+            pinInput.value = '';
+            pinInput.focus();
+        });
+
+        // ---- Lookup ----
+        const codeInput = document.getElementById('code-input');
+        const lookupBtn = document.getElementById('lookup-btn');
+
+        lookupBtn.addEventListener('click', () => lookupCard(codeInput.value.trim()));
+        codeInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') lookupCard(codeInput.value.trim());
+        });
+
+        async function lookupCard(code) {
+            if (!code) return;
+
+            lookupBtn.disabled = true;
+            lookupBtn.textContent = '...';
+            document.getElementById('card-result').style.display = 'none';
+            document.getElementById('not-found').style.display = 'none';
+
+            try {
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/gift_cards?code=eq.${encodeURIComponent(code.toUpperCase())}&select=*`,
+                    { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` } }
+                );
+                const cards = await res.json();
+
+                if (cards.length === 0) {
+                    document.getElementById('not-found').style.display = 'block';
+                    return;
+                }
+
+                currentCard = cards[0];
+                renderCard(currentCard);
+
+                // Fetch transactions
+                const txRes = await fetch(
+                    `${SUPABASE_URL}/rest/v1/gift_card_transactions?gift_card_id=eq.${currentCard.id}&select=*&order=created_at.desc`,
+                    { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` } }
+                );
+                const txs = await txRes.json();
+                renderTransactions(txs);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('not-found').style.display = 'block';
+                document.getElementById('not-found').textContent = 'Fel vid sökning. Försök igen.';
+            } finally {
+                lookupBtn.disabled = false;
+                lookupBtn.textContent = 'Sök';
+            }
+        }
+
+        function renderCard(card) {
+            const statusEl = document.getElementById('card-status');
+            statusEl.textContent = card.status === 'active' ? 'Aktivt' : card.status === 'redeemed' ? 'Förbrukat' : 'Utgånget';
+            statusEl.className = 'card-status ' + card.status;
+
+            document.getElementById('card-balance').textContent = card.balance + ' kr';
+            document.getElementById('card-original').textContent = 'Ursprungligt belopp: ' + card.amount + ' kr';
+            document.getElementById('card-code').textContent = card.code;
+            document.getElementById('card-recipient').textContent = card.recipient_name;
+            document.getElementById('card-buyer').textContent = card.buyer_name;
+            document.getElementById('card-created').textContent = new Date(card.created_at).toLocaleDateString('sv-SE');
+            document.getElementById('card-expires').textContent = new Date(card.expires_at).toLocaleDateString('sv-SE');
+
+            document.getElementById('redeem-section').style.display = card.status === 'active' ? 'block' : 'none';
+            document.getElementById('redeem-amount').max = card.balance;
+            document.getElementById('redeem-amount').value = '';
+            document.getElementById('redeem-msg').style.display = 'none';
+
+            document.getElementById('card-result').style.display = 'block';
+        }
+
+        function renderTransactions(txs) {
+            const historyEl = document.getElementById('tx-history');
+            const listEl = document.getElementById('tx-list');
+
+            if (txs.length === 0) {
+                historyEl.style.display = 'none';
+                return;
+            }
+
+            listEl.innerHTML = txs.map(tx => `
+                <div class="tx-item">
+                    <span>
+                        <span class="tx-amount">-${tx.amount_used} kr</span>
+                        <span class="tx-meta"> av ${tx.redeemed_by}</span>
+                    </span>
+                    <span class="tx-meta">${new Date(tx.created_at).toLocaleDateString('sv-SE')}</span>
+                </div>
+            `).join('');
+
+            historyEl.style.display = 'block';
+        }
+
+        // ---- Redeem ----
+        const redeemBtn = document.getElementById('redeem-btn');
+
+        redeemBtn.addEventListener('click', async () => {
+            const amountInput = document.getElementById('redeem-amount');
+            const amount = parseInt(amountInput.value);
+            const msgEl = document.getElementById('redeem-msg');
+
+            if (!amount || amount < 1) {
+                msgEl.textContent = 'Ange ett belopp.';
+                msgEl.className = 'redeem-msg error';
+                msgEl.style.display = 'block';
+                return;
+            }
+
+            if (amount > currentCard.balance) {
+                msgEl.textContent = 'Beloppet överstiger saldot.';
+                msgEl.className = 'redeem-msg error';
+                msgEl.style.display = 'block';
+                return;
+            }
+
+            const staffName = prompt('Ditt namn (personal):');
+            if (!staffName) return;
+
+            redeemBtn.disabled = true;
+            redeemBtn.textContent = '...';
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/redeem-gift-card`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        code: currentCard.code,
+                        amount_used: amount,
+                        redeemed_by: staffName,
+                        pin: storedPin,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    msgEl.textContent = `Inlöst ${amount} kr. Nytt saldo: ${data.new_balance} kr`;
+                    msgEl.className = 'redeem-msg success';
+                    msgEl.style.display = 'block';
+                    // Refresh the card
+                    lookupCard(currentCard.code);
+                } else {
+                    throw new Error(data.error || 'Kunde inte lösa in');
+                }
+            } catch (err) {
+                msgEl.textContent = err.message || 'Något gick fel';
+                msgEl.className = 'redeem-msg error';
+                msgEl.style.display = 'block';
+            } finally {
+                redeemBtn.disabled = false;
+                redeemBtn.textContent = 'Lös in';
+            }
+        });
+    </script>
+</body>
+</html>

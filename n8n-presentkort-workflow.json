@@ -1,0 +1,154 @@
+{
+  "name": "Viola \u2013 Presentkort",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gift-card-created",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 340],
+      "webhookId": "gift-card-created"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst data = input.body || input;\n\nconst qrImageUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent('https://restaurangviola.se/presentkort-visa.html?code=' + data.code);\nconst expiresDate = new Date(data.expires_at).toLocaleDateString('sv-SE');\nconst isTest = data.mode === 'test';\nconst subjectPrefix = isTest ? '[TEST] ' : '';\n\nfunction esc(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }\n\nconst testBanner = isTest\n  ? '<div style=\"background:#ff6600;color:white;text-align:center;padding:10px;font-size:14px;font-weight:bold;\">TESTL\\u00c4GE \\u2013 Inte ett riktigt presentkort</div>'\n  : '';\n\nconst messageBlock = data.message\n  ? '<tr><td style=\"padding:0 40px 20px;text-align:center;\"><div style=\"font-family:Georgia,Times,serif;font-size:16px;color:#F8EAD7;font-style:italic;line-height:1.5;\">\\u201C' + esc(data.message) + '\\u201D</div><div style=\"font-family:Arial,sans-serif;font-size:12px;color:#BEAF97;margin-top:8px;\">Fr\\u00e5n ' + esc(data.buyer_name) + '</div></td></tr>'\n  : '<tr><td style=\"padding:0 40px 20px;text-align:center;\"><div style=\"font-family:Arial,sans-serif;font-size:12px;color:#BEAF97;\">Fr\\u00e5n ' + esc(data.buyer_name) + '</div></td></tr>';\n\nconst recipientEmailHtml = '<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head><body style=\"margin:0;padding:0;background-color:#E7E2D9;\">'\n  + testBanner\n  + '<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#E7E2D9;padding:40px 20px;\"><tr><td align=\"center\">'\n  + '<table role=\"presentation\" width=\"480\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#3e0f15;max-width:480px;width:100%;\">'\n  + '<tr><td style=\"padding:30px 40px;text-align:center;background-color:#E7E2D9;\"><img src=\"https://restaurangviola.se/viola_logo_transparent.png\" width=\"160\" alt=\"Viola\" style=\"display:block;margin:0 auto;\"></td></tr>'\n  + '<tr><td style=\"text-align:center;padding:20px 40px;\"><div style=\"font-family:Georgia,Times,serif;font-size:48px;color:#F8EAD7;\">' + data.amount + ' kr</div><div style=\"font-family:Arial,sans-serif;font-size:11px;color:#F8EAD7;text-transform:uppercase;letter-spacing:0.15em;margin-top:8px;opacity:0.6;\">Presentkort</div></td></tr>'\n  + messageBlock\n  + '<tr><td style=\"text-align:center;padding:20px 40px;\"><img src=\"' + qrImageUrl + '\" width=\"180\" height=\"180\" alt=\"QR-kod\" style=\"border:8px solid rgba(248,234,215,0.1);\"></td></tr>'\n  + '<tr><td style=\"text-align:center;padding:0 40px 10px;\"><div style=\"font-family:Courier New,Courier,monospace;font-size:20px;color:#F8EAD7;letter-spacing:0.15em;background:rgba(248,234,215,0.1);padding:14px;display:inline-block;\">' + data.code + '</div></td></tr>'\n  + '<tr><td style=\"padding:20px 40px 30px;text-align:center;\"><div style=\"font-family:Arial,sans-serif;font-size:11px;color:#BEAF97;line-height:2;\">Till: ' + esc(data.recipient_name) + '<br>Giltigt till: ' + expiresDate + '<br>Visa QR-koden vid bes\\u00f6k i restaurangen</div></td></tr>'\n  + '<tr><td style=\"border-top:1px solid rgba(248,234,215,0.15);padding:20px 40px;text-align:center;\"><div style=\"font-family:Arial,sans-serif;font-size:11px;color:#948A6F;line-height:1.6;\">Restaurang Viola<br>Posthusgatan 1C, 761 30 Norrt\\u00e4lje<br>Tisdag \\u2013 Fredag 16:30 \\u2013 23:00</div></td></tr>'\n  + '</table></td></tr></table></body></html>';\n\nconst buyerEmailHtml = '<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head><body style=\"margin:0;padding:0;background-color:#E7E2D9;\">'\n  + testBanner\n  + '<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#E7E2D9;padding:40px 20px;\"><tr><td align=\"center\">'\n  + '<table role=\"presentation\" width=\"480\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#3e0f15;max-width:480px;width:100%;\">'\n  + '<tr><td style=\"padding:30px 40px;text-align:center;background-color:#E7E2D9;\"><img src=\"https://restaurangviola.se/viola_logo_transparent.png\" width=\"140\" alt=\"Viola\" style=\"display:block;margin:0 auto;\"></td></tr>'\n  + '<tr><td style=\"padding:20px 40px;text-align:center;\"><div style=\"font-family:Georgia,Times,serif;font-size:22px;color:#F8EAD7;\">Tack f\\u00f6r ditt k\\u00f6p!</div></td></tr>'\n  + '<tr><td style=\"padding:10px 40px 30px;text-align:center;\"><div style=\"font-family:Arial,sans-serif;font-size:14px;color:#F8EAD7;line-height:1.6;opacity:0.8;\">Ditt presentkort p\\u00e5 <strong>' + data.amount + ' kr</strong> har skickats till <strong>' + esc(data.recipient_name) + '</strong> (' + esc(data.recipient_email) + ').</div></td></tr>'\n  + '<tr><td style=\"padding:0 40px 30px;text-align:center;\"><div style=\"font-family:Arial,sans-serif;font-size:12px;color:#BEAF97;line-height:1.6;\">Presentkortskod: <strong>' + data.code + '</strong><br>Giltigt till: ' + expiresDate + '</div></td></tr>'\n  + '<tr><td style=\"border-top:1px solid rgba(248,234,215,0.15);padding:20px 40px;text-align:center;\"><div style=\"font-family:Arial,sans-serif;font-size:11px;color:#948A6F;line-height:1.6;\">Restaurang Viola<br>Posthusgatan 1C, 761 30 Norrt\\u00e4lje</div></td></tr>'\n  + '</table></td></tr></table></body></html>';\n\nreturn [{\n  json: {\n    ...data,\n    recipientEmailHtml,\n    buyerEmailHtml,\n    recipientSubject: subjectPrefix + 'Ditt presentkort till Viola',\n    buyerSubject: subjectPrefix + 'Bekr\\u00e4ftelse \\u2013 Presentkort Viola',\n    qrImageUrl,\n    expiresDate\n  }\n}];"
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000002",
+      "name": "Skapa e-post HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 340]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nssyzyjtmhlriyilgddf.supabase.co/functions/v1/generate-gift-card-pdf",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ code: $json.code, amount: $json.amount, recipient_name: $json.recipient_name, buyer_name: $json.buyer_name, message: $json.message, expires_at: $json.expires_at, mode: $json.mode }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "pdf"
+            }
+          }
+        }
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000006",
+      "name": "Generera PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, 340]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Skapa e-post HTML').first().json.recipient_email }}",
+        "subject": "={{ $('Skapa e-post HTML').first().json.recipientSubject }}",
+        "emailType": "html",
+        "html": "={{ $('Skapa e-post HTML').first().json.recipientEmailHtml }}",
+        "options": {
+          "appendAttribution": false,
+          "attachments": "pdf"
+        }
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000003",
+      "name": "Skicka till mottagare",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [980, 240],
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "SMTP - Viola"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Skapa e-post HTML').first().json.buyer_email }}",
+        "subject": "={{ $('Skapa e-post HTML').first().json.buyerSubject }}",
+        "emailType": "html",
+        "html": "={{ $('Skapa e-post HTML').first().json.buyerEmailHtml }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000004",
+      "name": "Skicka till k\u00f6pare",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [980, 440],
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "SMTP - Viola"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Viola \u2013 Presentkort Workflow\n\n### Setup\n1. Konfigurera SMTP-credentials (eller byt till Gmail-nod)\n2. Aktivera workflowet\n\n### Fl\u00f6de\nStripe \u2192 Edge function (Supabase) \u2192 Webhook hit \u2192 E-post HTML \u2192 PDF-generering \u2192 Skicka mail\n\n### Test vs Live\n`mode: 'test'` ger [TEST]-prefix + orange banner.\n\n### PDF\nGenereras av Supabase Edge Function `generate-gift-card-pdf` med pdf-lib.\nBifogas automatiskt till mottagarens mail som attachment."
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000005",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [200, 540]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Skapa e-post HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skapa e-post HTML": {
+      "main": [
+        [
+          {
+            "node": "Generera PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generera PDF": {
+      "main": [
+        [
+          {
+            "node": "Skicka till mottagare",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Skicka till k\u00f6pare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "active": false
+}
