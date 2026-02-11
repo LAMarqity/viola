@@ -55,19 +55,23 @@
 
         .widget-container {
             background: #ffffff;
-            padding: 1rem 0;
+            padding: 1.5rem 1rem;
             width: 100%;
             max-width: 800px;
-            min-height: 940px;
-            display: flex;
-            justify-content: center;
         }
 
-        .widget-container iframe {
+        .BookingBox {
             width: 100%;
             max-width: 800px;
-            min-width: 300px;
-            border: none;
+            margin: 0 auto;
+        }
+
+        .BookingBox > span {
+            display: none;
+        }
+
+        .BookingBox iframe {
+            border: none !important;
         }
 
         .footer-info {
@@ -81,16 +85,6 @@
         .footer-info a {
             color: #F8EAD7;
         }
-
-        @media (max-width: 600px) {
-            .widget-container {
-                min-height: 800px;
-            }
-
-            .widget-container iframe {
-                min-width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
@@ -103,7 +97,11 @@
         <p class="subtitle">Välj datum, tid och antal gäster nedan.</p>
 
         <div class="widget-container">
-            <iframe src="https://book.easytable.com/book/?id=c9a10&lang=auto" frameborder="0" height="940"></iframe>
+            <script type="text/javascript">
+            (function() { var st=document.createElement('script'); st.type='text/javascript'; st.async=true; st.src='//book.easytable.com/book/widget/v3/book.js'; var sc=document.getElementsByTagName('script')[0]; sc.parentNode.insertBefore(st, sc); })();
+            </script>
+            <noscript>Din webbläsare stöder inte JavaScript!</noscript>
+            <div class="BookingBox" data-place="c9a10" data-lang="auto"></div>
         </div>
 
         <p class="footer-info">
