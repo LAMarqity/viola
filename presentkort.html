@@ -303,6 +303,61 @@
             margin-bottom: 0.5rem;
         }
 
+        /* Coupon */
+        .coupon-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .coupon-row input {
+            flex: 1;
+            text-transform: uppercase;
+        }
+
+        .coupon-row button {
+            padding: 0.8rem 1.2rem;
+            border: 1px solid rgba(248, 234, 215, 0.25);
+            background: transparent;
+            color: #F8EAD7;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .coupon-row button:hover:not(:disabled) {
+            border-color: #F8EAD7;
+            background: rgba(248, 234, 215, 0.08);
+        }
+
+        .coupon-row button:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        .coupon-feedback {
+            font-size: 0.8rem;
+            margin-top: 0.4rem;
+        }
+
+        .coupon-feedback.success {
+            color: #81c784;
+        }
+
+        .coupon-feedback.error {
+            color: #ff9999;
+        }
+
+        .summary-row.discount .label,
+        .summary-row.discount span:last-child {
+            color: #81c784;
+            opacity: 1;
+        }
+
         /* Spinner */
         .spinner {
             display: inline-block;
@@ -379,6 +434,14 @@
                     <input type="email" id="buyer-email" required placeholder="din@email.se">
                 </div>
 
+                <div class="section-divider">Kupongkod</div>
+
+                <div class="coupon-row">
+                    <input type="text" id="coupon-code" placeholder="Ange kupongkod">
+                    <button type="button" id="apply-coupon">Tillämpa</button>
+                </div>
+                <div class="coupon-feedback" id="coupon-feedback"></div>
+
                 <button type="submit" class="submit-btn"><span>Gå till betalning</span></button>
                 <div class="error-msg" id="error-msg"></div>
             </form>
@@ -398,6 +461,10 @@
                 <div class="summary-row">
                     <span class="label">Till</span>
                     <span id="summary-recipient"></span>
+                </div>
+                <div class="summary-row discount" id="summary-discount-row" style="display:none;">
+                    <span class="label" id="summary-discount-label"></span>
+                    <span id="summary-discount"></span>
                 </div>
                 <div class="summary-row summary-total">
                     <span>Att betala</span>
@@ -439,6 +506,7 @@
         let stripe = null;
         let elements = null;
         let formData = {};
+        let appliedCoupon = null; // { code, percent_off, amount_off, name }
 
         // --- Step management ---
         function goToStep(n) {
@@ -467,6 +535,54 @@
             selectedAmount = parseInt(customInput.value) || null;
         });
 
+        // --- Coupon validation ---
+        document.getElementById('apply-coupon').addEventListener('click', async () => {
+            const couponInput = document.getElementById('coupon-code');
+            const feedback = document.getElementById('coupon-feedback');
+            const btn = document.getElementById('apply-coupon');
+            const code = couponInput.value.trim().toUpperCase();
+
+            if (!code) {
+                feedback.textContent = 'Ange en kupongkod.';
+                feedback.className = 'coupon-feedback error';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = '...';
+            feedback.textContent = '';
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/create-checkout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ validate_coupon: code }),
+                });
+                const data = await res.json();
+
+                if (data.valid) {
+                    appliedCoupon = data;
+                    const desc = data.percent_off
+                        ? data.percent_off + '% rabatt'
+                        : data.amount_off + ' kr rabatt';
+                    feedback.textContent = (data.name || code) + ' — ' + desc;
+                    feedback.className = 'coupon-feedback success';
+                    couponInput.disabled = true;
+                    btn.textContent = '\u2713';
+                } else {
+                    appliedCoupon = null;
+                    feedback.textContent = data.error || 'Ogiltig kupongkod.';
+                    feedback.className = 'coupon-feedback error';
+                    btn.textContent = 'Tillämpa';
+                }
+            } catch (err) {
+                feedback.textContent = 'Kunde inte validera koden.';
+                feedback.className = 'coupon-feedback error';
+                btn.textContent = 'Tillämpa';
+            }
+            btn.disabled = false;
+        });
+
         // --- Step 1 → Step 2: Create PaymentIntent ---
         document.getElementById('gift-card-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -491,6 +607,7 @@
                 recipient_name: document.getElementById('recipient-name').value,
                 recipient_email: document.getElementById('recipient-email').value,
                 message: document.getElementById('message').value,
+                coupon_code: appliedCoupon ? appliedCoupon.code : undefined,
             };
 
             try {
@@ -552,8 +669,18 @@
                 // Update summary
                 document.getElementById('summary-amount').textContent = formData.amount + ' kr';
                 document.getElementById('summary-recipient').textContent = formData.recipient_name;
-                document.getElementById('summary-total').textContent = formData.amount + ' kr';
-                document.getElementById('pay-btn-text').textContent = 'Betala ' + formData.amount + ' kr';
+
+                const chargeAmount = data.chargeAmount || formData.amount;
+                if (data.discount) {
+                    document.getElementById('summary-discount-row').style.display = 'flex';
+                    document.getElementById('summary-discount-label').textContent = data.discount.label;
+                    document.getElementById('summary-discount').textContent = '-' + data.discount.savings + ' kr';
+                } else {
+                    document.getElementById('summary-discount-row').style.display = 'none';
+                }
+                document.getElementById('summary-total').textContent = chargeAmount + ' kr';
+                document.getElementById('pay-btn-text').textContent = 'Betala ' + chargeAmount + ' kr';
+                formData.chargeAmount = chargeAmount;
 
                 goToStep(2);
             } catch (error) {
@@ -585,13 +712,13 @@
                 payError.textContent = error.message;
                 payError.style.display = 'block';
                 payBtn.disabled = false;
-                payBtnText.textContent = 'Betala ' + formData.amount + ' kr';
+                payBtnText.textContent = 'Betala ' + (formData.chargeAmount || formData.amount) + ' kr';
             } else if (paymentIntent && paymentIntent.status === 'succeeded') {
                 goToStep(3);
             } else {
                 // Payment requires additional action or redirect happened
                 payBtn.disabled = false;
-                payBtnText.textContent = 'Betala ' + formData.amount + ' kr';
+                payBtnText.textContent = 'Betala ' + (formData.chargeAmount || formData.amount) + ' kr';
             }
         });
 
