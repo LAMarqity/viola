@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <title>Förhandsbokning - Restaurang Viola</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #3e0f15;
+            color: #F8EAD7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 3rem 1.5rem 2rem;
+            text-align: center;
+        }
+
+        .logo {
+            display: block;
+            margin-bottom: 2rem;
+        }
+
+        .logo img {
+            width: 140px;
+            filter: brightness(0) invert(1) opacity(0.9);
+        }
+
+        h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            opacity: 0.6;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .widget-container {
+            background: #ffffff;
+            padding: 1rem 0;
+            width: 100%;
+            max-width: 800px;
+            min-height: 940px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .widget-container iframe {
+            width: 100%;
+            max-width: 800px;
+            min-width: 300px;
+            border: none;
+        }
+
+        .footer-info {
+            font-size: 0.75rem;
+            opacity: 0.3;
+            line-height: 1.6;
+            margin-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .footer-info a {
+            color: #F8EAD7;
+        }
+
+        @media (max-width: 600px) {
+            .widget-container {
+                min-height: 800px;
+            }
+
+            .widget-container iframe {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a class="logo" href="index.html">
+            <img src="Viola_Burgundy.svg" alt="Viola">
+        </a>
+
+        <h1>Förhandsbokning</h1>
+        <p class="subtitle">Välj datum, tid och antal gäster nedan.</p>
+
+        <div class="widget-container">
+            <iframe src="https://book.easytable.com/book/?id=c9a10&lang=auto" frameborder="0" height="940"></iframe>
+        </div>
+
+        <p class="footer-info">
+            Restaurang Viola<br>
+            <a href="https://maps.google.com/?q=Posthusgatan+1C,+761+30+Norrtälje" target="_blank">
+                Posthusgatan 1C, 761 30 Norrtälje
+            </a><br>
+            Tisdag – Fredag 16:30 – 23:00
+        </p>
+    </div>
+</body>
+</html>
