@@ -482,8 +482,9 @@
 
             <div class="section-divider">Betalning</div>
 
-            <div style="background: rgba(190, 175, 151, 0.1); border: 1px solid rgba(190, 175, 151, 0.3); padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.8rem; line-height: 1.5; border-radius: 4px;">
-                💡 <strong>Klarna:</strong> Välj mellan direktbetalning, betala senare (30 dagar) eller dela upp betalningen i nästa steg.
+            <div style="background: rgba(190, 175, 151, 0.15); border: 1px solid rgba(190, 175, 151, 0.5); padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: 0.85rem; line-height: 1.6; border-radius: 4px; border-left: 3px solid #BEAF97;">
+                <div style="font-weight: 600; margin-bottom: 0.25rem; color: #BEAF97;">💳 Klarna - Betala hela beloppet eller delbetala</div>
+                <div style="opacity: 0.9;">I nästa steg väljer du mellan direktbetalning, betala senare (30 dagar) eller dela upp betalningen.</div>
             </div>
 
             <div id="payment-element"></div>
@@ -544,6 +545,16 @@
         function setupPaymentElementListeners(paymentElement) {
             paymentElement.on('ready', () => {
                 document.getElementById('pay-btn').disabled = false;
+
+                // Try to update Klarna messaging text
+                setTimeout(() => {
+                    const paymentElement = document.getElementById('payment-element');
+                    if (paymentElement) {
+                        const iframe = paymentElement.querySelector('iframe');
+                        // Note: Can't access iframe content due to cross-origin restrictions
+                        // Fallback: info box above already explains installment options
+                    }
+                }, 500);
             });
 
             // Update button text based on selected payment method
