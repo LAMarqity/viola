@@ -8,4 +8,5 @@ test-*.js
 test-*.pdf
 Inter-*.otf
 Inter-*.ttf
+roboto-*-b64.txt
 nul
