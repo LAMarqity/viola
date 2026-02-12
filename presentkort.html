@@ -282,6 +282,13 @@
             margin-bottom: 1rem;
         }
 
+        /* Hide Klarna's misleading "Pay full amount" message */
+        #payment-element .p-MessageText,
+        #payment-element [class*="Message"],
+        #payment-element .p-PaymentMethodMessagingSection {
+            display: none !important;
+        }
+
         /* Success state */
         .success-checkmark {
             width: 64px;
