@@ -1,2 +1,11 @@
 .claude/
 .mcp.json
+.env
+node_modules/
+package.json
+package-lock.json
+test-*.js
+test-*.pdf
+Inter-*.otf
+Inter-*.ttf
+nul
