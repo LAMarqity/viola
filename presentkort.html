@@ -761,11 +761,13 @@
             // Payment succeeded, show success page
             goToStep(3);
         } else if (redirectStatus === 'failed') {
-            // Payment failed or was cancelled, go back to form
-            goToStep(1);
-            const errorEl = document.getElementById('error-msg');
-            errorEl.textContent = 'Betalningen avbröts eller misslyckades. Försök igen.';
-            errorEl.style.display = 'block';
+            // Payment failed or was cancelled, show payment page with error
+            goToStep(2);
+            const paymentError = document.getElementById('payment-error');
+            paymentError.textContent = 'Betalningen avbröts eller misslyckades. Klicka "Tillbaka" för att välja en annan betalmetod.';
+            paymentError.style.display = 'block';
+            // Scroll to top to show error message
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // --- Message character and line counter ---
