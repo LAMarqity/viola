@@ -755,9 +755,17 @@
 
         // --- Handle return from redirect-based payment methods ---
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('payment_success') === 'true') {
-            // Stripe only redirects back on success, webhook handles verification
+        const redirectStatus = urlParams.get('redirect_status');
+
+        if (redirectStatus === 'succeeded') {
+            // Payment succeeded, show success page
             goToStep(3);
+        } else if (redirectStatus === 'failed') {
+            // Payment failed or was cancelled, go back to form
+            goToStep(1);
+            const errorEl = document.getElementById('error-msg');
+            errorEl.textContent = 'Betalningen avbröts eller misslyckades. Försök igen.';
+            errorEl.style.display = 'block';
         }
 
         // --- Message character and line counter ---
