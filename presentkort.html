@@ -419,7 +419,8 @@
 
                 <div class="form-group">
                     <label for="message">Meddelande <span class="optional">(valfritt)</span></label>
-                    <textarea id="message" maxlength="200" placeholder="T.ex. Grattis på födelsedagen! (max 200 tecken)"></textarea>
+                    <textarea id="message" maxlength="200" placeholder="T.ex. Grattis på födelsedagen! (max 200 tecken, 4 rader)"></textarea>
+                    <div style="font-size: 0.7rem; opacity: 0.5; margin-top: 0.3rem;" id="message-counter">0/200 tecken, 0/4 rader</div>
                 </div>
 
                 <div class="section-divider">Dina uppgifter</div>
@@ -602,6 +603,14 @@
                 return;
             }
 
+            const message = document.getElementById('message').value;
+            const lineCount = message.trim() ? message.split('\n').length : 0;
+            if (lineCount > 4) {
+                errorEl.textContent = 'Meddelandet kan max vara 4 rader.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
             const button = e.target.querySelector('.submit-btn');
             const buttonSpan = button.querySelector('span');
             const originalText = buttonSpan.textContent;
@@ -738,6 +747,28 @@
         if (urlParams.get('payment_intent_client_secret')) {
             goToStep(3);
         }
+
+        // --- Message character and line counter ---
+        const messageTextarea = document.getElementById('message');
+        const messageCounter = document.getElementById('message-counter');
+
+        function updateMessageCounter() {
+            const text = messageTextarea.value;
+            const charCount = text.length;
+            const lineCount = text.trim() ? text.split('\n').length : 0;
+            const counterText = `${charCount}/200 tecken, ${lineCount}/4 rader`;
+
+            if (lineCount > 4) {
+                messageCounter.style.color = '#ef9a9a';
+                messageCounter.textContent = counterText + ' (för många rader!)';
+            } else {
+                messageCounter.style.color = '';
+                messageCounter.textContent = counterText;
+            }
+        }
+
+        messageTextarea.addEventListener('input', updateMessageCounter);
+        updateMessageCounter();
     </script>
 </body>
 </html>
