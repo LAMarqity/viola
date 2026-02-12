@@ -533,6 +533,25 @@
             document.getElementById('pay-btn-text').textContent = 'Betala ' + chargeAmount + ' kr';
         }
 
+        // Setup payment element event listeners
+        function setupPaymentElementListeners(paymentElement) {
+            paymentElement.on('ready', () => {
+                document.getElementById('pay-btn').disabled = false;
+            });
+
+            // Update button text based on selected payment method
+            paymentElement.on('change', (event) => {
+                const payBtnText = document.getElementById('pay-btn-text');
+                const chargeAmount = formData.chargeAmount || formData.amount;
+
+                if (event.value?.type === 'klarna') {
+                    payBtnText.textContent = 'Fortsätt till Klarna - ' + chargeAmount + ' kr';
+                } else {
+                    payBtnText.textContent = 'Betala ' + chargeAmount + ' kr';
+                }
+            });
+        }
+
         // --- Step management ---
         function goToStep(n) {
             document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -717,9 +736,8 @@
                 });
                 paymentElement.mount('#payment-element');
 
-                paymentElement.on('ready', () => {
-                    document.getElementById('pay-btn').disabled = false;
-                });
+                // Setup event listeners
+                setupPaymentElementListeners(paymentElement);
 
                 // Update summary
                 document.getElementById('summary-amount').textContent = formData.amount + ' kr';
@@ -854,9 +872,8 @@
                 });
                 paymentElement.mount('#payment-element');
 
-                paymentElement.on('ready', () => {
-                    document.getElementById('pay-btn').disabled = false;
-                });
+                // Setup event listeners
+                setupPaymentElementListeners(paymentElement);
 
                 // Update summary
                 updateSummary();
