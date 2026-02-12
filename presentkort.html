@@ -482,7 +482,7 @@
 
             <div class="section-divider">Betalning</div>
 
-            <div style="background: rgba(190, 175, 151, 0.15); border: 1px solid rgba(190, 175, 151, 0.5); padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: 0.85rem; line-height: 1.6; border-radius: 4px; border-left: 3px solid #BEAF97;">
+            <div id="klarna-info" style="display: none; background: rgba(190, 175, 151, 0.15); border: 1px solid rgba(190, 175, 151, 0.5); padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: 0.85rem; line-height: 1.6; border-radius: 4px; border-left: 3px solid #BEAF97;">
                 <div style="font-weight: 600; margin-bottom: 0.25rem; color: #BEAF97;">💳 Klarna - Betala hela beloppet eller delbetala</div>
                 <div style="opacity: 0.9;">I nästa steg väljer du mellan direktbetalning, betala senare (30 dagar) eller dela upp betalningen.</div>
             </div>
@@ -557,15 +557,18 @@
                 }, 500);
             });
 
-            // Update button text based on selected payment method
+            // Update button text and info box based on selected payment method
             paymentElement.on('change', (event) => {
                 const payBtnText = document.getElementById('pay-btn-text');
+                const klarnaInfo = document.getElementById('klarna-info');
                 const chargeAmount = formData.chargeAmount || formData.amount;
 
                 if (event.value?.type === 'klarna') {
                     payBtnText.textContent = 'Fortsätt till Klarna - ' + chargeAmount + ' kr';
+                    if (klarnaInfo) klarnaInfo.style.display = 'block';
                 } else {
                     payBtnText.textContent = 'Betala ' + chargeAmount + ' kr';
+                    if (klarnaInfo) klarnaInfo.style.display = 'none';
                 }
             });
         }
