@@ -728,25 +728,23 @@
             payBtnText.innerHTML = '<span class="spinner"></span>Behandlar...';
             payError.style.display = 'none';
 
-            const { error, paymentIntent } = await stripe.confirmPayment({
+            const { error } = await stripe.confirmPayment({
                 elements,
                 confirmParams: {
                     return_url: window.location.origin + '/presentkort.html?payment_success=true',
                 },
-                redirect: 'if_required',
             });
 
             if (error) {
+                // Payment failed or was cancelled
                 payError.textContent = error.message;
                 payError.style.display = 'block';
                 payBtn.disabled = false;
                 payBtnText.textContent = 'Betala ' + (formData.chargeAmount || formData.amount) + ' kr';
-            } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-                goToStep(3);
             } else {
-                // Payment requires additional action or redirect happened
-                payBtn.disabled = false;
-                payBtnText.textContent = 'Betala ' + (formData.chargeAmount || formData.amount) + ' kr';
+                // Payment succeeded (for non-redirect methods like cards)
+                // For redirect methods (Klarna), the page will redirect automatically
+                goToStep(3);
             }
         });
 
