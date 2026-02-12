@@ -509,6 +509,26 @@
         let formData = {};
         let appliedCoupon = null; // { code, percent_off, amount_off, name }
 
+        // Update payment summary display
+        function updateSummary() {
+            document.getElementById('summary-amount').textContent = formData.amount + ' kr';
+            document.getElementById('summary-recipient').textContent = formData.recipient_name;
+
+            const savedDiscount = sessionStorage.getItem('giftcard_discount');
+            if (savedDiscount) {
+                const discount = JSON.parse(savedDiscount);
+                document.getElementById('summary-discount-row').style.display = 'flex';
+                document.getElementById('summary-discount-label').textContent = discount.label;
+                document.getElementById('summary-discount').textContent = '-' + discount.savings + ' kr';
+            } else {
+                document.getElementById('summary-discount-row').style.display = 'none';
+            }
+
+            const chargeAmount = formData.chargeAmount || formData.amount;
+            document.getElementById('summary-total').textContent = chargeAmount + ' kr';
+            document.getElementById('pay-btn-text').textContent = 'Betala ' + chargeAmount + ' kr';
+        }
+
         // --- Step management ---
         function goToStep(n) {
             document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -625,6 +645,12 @@
                 coupon_code: appliedCoupon ? appliedCoupon.code : undefined,
             };
 
+            // Save form data to sessionStorage for redirect recovery
+            sessionStorage.setItem('giftcard_formdata', JSON.stringify(formData));
+            if (appliedCoupon) {
+                sessionStorage.setItem('giftcard_coupon', JSON.stringify(appliedCoupon));
+            }
+
             try {
                 buttonSpan.innerHTML = '<span class="spinner"></span>Laddar...';
                 button.disabled = true;
@@ -696,16 +722,17 @@
                 document.getElementById('summary-recipient').textContent = formData.recipient_name;
 
                 const chargeAmount = data.chargeAmount || formData.amount;
-                if (data.discount) {
-                    document.getElementById('summary-discount-row').style.display = 'flex';
-                    document.getElementById('summary-discount-label').textContent = data.discount.label;
-                    document.getElementById('summary-discount').textContent = '-' + data.discount.savings + ' kr';
-                } else {
-                    document.getElementById('summary-discount-row').style.display = 'none';
-                }
-                document.getElementById('summary-total').textContent = chargeAmount + ' kr';
-                document.getElementById('pay-btn-text').textContent = 'Betala ' + chargeAmount + ' kr';
                 formData.chargeAmount = chargeAmount;
+
+                // Save payment data for redirect recovery
+                sessionStorage.setItem('giftcard_charge', chargeAmount.toString());
+                sessionStorage.setItem('giftcard_publishable_key', data.publishableKey);
+                if (data.discount) {
+                    sessionStorage.setItem('giftcard_discount', JSON.stringify(data.discount));
+                }
+
+                // Update summary
+                updateSummary();
 
                 goToStep(2);
             } catch (error) {
@@ -756,18 +783,87 @@
         // --- Handle return from redirect-based payment methods ---
         const urlParams = new URLSearchParams(window.location.search);
         const redirectStatus = urlParams.get('redirect_status');
+        const clientSecret = urlParams.get('payment_intent_client_secret');
 
         if (redirectStatus === 'succeeded') {
             // Payment succeeded, show success page
+            sessionStorage.clear();
             goToStep(3);
-        } else if (redirectStatus === 'failed') {
-            // Payment failed or was cancelled, show payment page with error
-            goToStep(2);
-            const paymentError = document.getElementById('payment-error');
-            paymentError.textContent = 'Betalningen avbröts eller misslyckades. Klicka "Tillbaka" för att välja en annan betalmetod.';
-            paymentError.style.display = 'block';
-            // Scroll to top to show error message
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (redirectStatus === 'failed' && clientSecret) {
+            // Payment failed or was cancelled, restore session and show payment page
+            const savedFormData = sessionStorage.getItem('giftcard_formdata');
+            const savedCoupon = sessionStorage.getItem('giftcard_coupon');
+            const savedCharge = sessionStorage.getItem('giftcard_charge');
+            const publishableKey = sessionStorage.getItem('giftcard_publishable_key');
+
+            if (savedFormData && publishableKey) {
+                formData = JSON.parse(savedFormData);
+                formData.chargeAmount = savedCharge ? parseInt(savedCharge) : formData.amount;
+
+                if (savedCoupon) {
+                    appliedCoupon = JSON.parse(savedCoupon);
+                }
+
+                // Re-initialize Stripe Elements with existing PaymentIntent
+                stripe = Stripe(publishableKey);
+                elements = stripe.elements({
+                    clientSecret: clientSecret,
+                    appearance: {
+                        theme: 'night',
+                        variables: {
+                            colorPrimary: '#F8EAD7',
+                            colorBackground: '#2a0a10',
+                            colorText: '#F8EAD7',
+                            colorDanger: '#ff8a8a',
+                            fontFamily: 'Inter, sans-serif',
+                            borderRadius: '0px',
+                            colorTextPlaceholder: 'rgba(248, 234, 215, 0.4)',
+                        },
+                        rules: {
+                            '.Input': {
+                                backgroundColor: 'rgba(248, 234, 215, 0.1)',
+                                border: 'none',
+                            },
+                            '.Tab': {
+                                backgroundColor: 'transparent',
+                                border: '1px solid rgba(248, 234, 215, 0.25)',
+                            },
+                            '.Tab--selected': {
+                                backgroundColor: '#F8EAD7',
+                                color: '#3e0f15',
+                            },
+                        },
+                    },
+                    locale: 'sv',
+                });
+
+                const paymentElement = elements.create('payment', {
+                    layout: {
+                        type: 'tabs',
+                        defaultCollapsed: false,
+                    },
+                    wallets: {
+                        applePay: 'auto',
+                        googlePay: 'auto',
+                    },
+                    paymentMethodOrder: ['card', 'klarna', 'link'],
+                });
+                paymentElement.mount('#payment-element');
+
+                paymentElement.on('ready', () => {
+                    document.getElementById('pay-btn').disabled = false;
+                });
+
+                // Update summary
+                updateSummary();
+
+                // Show payment page with error
+                goToStep(2);
+                const paymentError = document.getElementById('payment-error');
+                paymentError.textContent = 'Betalningen avbröts eller misslyckades. Välj en annan betalmetod eller försök igen.';
+                paymentError.style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
 
         // --- Message character and line counter ---
