@@ -64,6 +64,30 @@
             border-color: #800020;
         }
 
+        .pin-btn {
+            width: 100%;
+            padding: 0.9rem;
+            margin-top: 1rem;
+            background: #800020;
+            color: #F8EAD7;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .pin-btn:hover:not(:disabled) {
+            background: #5c0018;
+        }
+
+        .pin-btn:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+
         .pin-error {
             color: #cc0000;
             font-size: 0.85rem;
@@ -198,6 +222,19 @@
         .card-status.expired {
             background: #f5f5f5;
             color: #757575;
+        }
+
+        .card-mode-test {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            background: #fff3e0;
+            color: #e65100;
+            margin-bottom: 1rem;
+            margin-left: 0.5rem;
         }
 
         .card-balance {
@@ -352,6 +389,7 @@
             <h1>Viola Admin</h1>
             <p>Ange PIN-kod för att fortsätta</p>
             <input type="password" class="pin-input" id="pin-input" maxlength="6" inputmode="numeric" autofocus>
+            <button class="pin-btn" id="pin-btn">Logga in</button>
             <div class="pin-error" id="pin-error">Felaktig PIN-kod</div>
         </div>
     </div>
@@ -376,6 +414,7 @@
 
             <div class="card-result" id="card-result">
                 <span class="card-status" id="card-status"></span>
+                <span class="card-mode-test" id="card-mode-test" style="display:none;">Test</span>
                 <div class="card-balance" id="card-balance"></div>
                 <div class="card-original" id="card-original"></div>
 
@@ -432,6 +471,12 @@
 
         pinInput.addEventListener('keyup', (e) => {
             if (e.key === 'Enter' && pinInput.value.length >= 4) {
+                verifyPin(pinInput.value);
+            }
+        });
+
+        document.getElementById('pin-btn').addEventListener('click', () => {
+            if (pinInput.value.length >= 4) {
                 verifyPin(pinInput.value);
             }
         });
@@ -529,6 +574,7 @@
             statusEl.textContent = card.status === 'active' ? 'Aktivt' : card.status === 'redeemed' ? 'Förbrukat' : 'Utgånget';
             statusEl.className = 'card-status ' + card.status;
 
+            document.getElementById('card-mode-test').style.display = card.mode === 'test' ? 'inline-block' : 'none';
             document.getElementById('card-balance').textContent = card.balance + ' kr';
             document.getElementById('card-original').textContent = 'Ursprungligt belopp: ' + card.amount + ' kr';
             document.getElementById('card-code').textContent = card.code;
