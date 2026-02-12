@@ -127,9 +127,203 @@
         }
 
         .app-body {
-            max-width: 520px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 1.5rem;
+        }
+
+        /* ---- Main Tabs ---- */
+        .main-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #BEAF97;
+        }
+
+        .main-tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #948A6F;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .main-tab:hover {
+            color: #800020;
+        }
+
+        .main-tab.active {
+            color: #800020;
+            border-bottom-color: #800020;
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ---- Overview Stats ---- */
+        .overview-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 1.25rem;
+            border-left: 4px solid #BEAF97;
+        }
+
+        .stat-box.primary {
+            border-left-color: #800020;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #948A6F;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-family: 'Fraunces', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #800020;
+        }
+
+        /* ---- Filter Tabs ---- */
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 2px solid #BEAF97;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            color: #948A6F;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-tab:hover {
+            border-color: #800020;
+            color: #800020;
+        }
+
+        .filter-tab.active {
+            background: #800020;
+            border-color: #800020;
+            color: #F8EAD7;
+        }
+
+        /* ---- Search ---- */
+        .search-box {
+            margin-bottom: 1rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            border: 2px solid #BEAF97;
+            background: white;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #800020;
+        }
+
+        /* ---- Table ---- */
+        .table-container {
+            background: white;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f5f5f5;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #800020;
+            font-weight: 600;
+            border-bottom: 2px solid #BEAF97;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.85rem;
+        }
+
+        tbody tr {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+            border-radius: 2px;
+        }
+
+        .badge.active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .badge.redeemed {
+            background: #fce4ec;
+            color: #c62828;
+        }
+
+        .badge.expired {
+            background: #f5f5f5;
+            color: #757575;
+        }
+
+        .badge.test {
+            background: #fff3e0;
+            color: #e65100;
+            margin-left: 0.5rem;
         }
 
         /* ---- Lookup ---- */
@@ -402,7 +596,15 @@
         </div>
 
         <div class="app-body">
-            <div class="lookup-section">
+            <!-- Main Tabs -->
+            <div class="main-tabs">
+                <button class="main-tab active" data-tab="lookup">Snabbsök</button>
+                <button class="main-tab" data-tab="overview">Alla presentkort</button>
+            </div>
+
+            <!-- Lookup Tab -->
+            <div class="tab-content active" id="tab-lookup">
+                <div class="lookup-section">
                 <label for="code-input">Sök presentkort</label>
                 <div class="lookup-row">
                     <input type="text" id="code-input" placeholder="GIFT-XXXX-XXXX">
@@ -453,6 +655,58 @@
                 <div class="tx-history" id="tx-history">
                     <h3>Historik</h3>
                     <div id="tx-list"></div>
+                </div>
+            </div>
+            </div>
+
+            <!-- Overview Tab -->
+            <div class="tab-content" id="tab-overview">
+                <!-- Stats -->
+                <div class="overview-stats">
+                    <div class="stat-box primary">
+                        <div class="stat-label">Totalt aktivt värde</div>
+                        <div class="stat-value" id="stat-active-value">0 kr</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Aktiva presentkort</div>
+                        <div class="stat-value" id="stat-active-count">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Förbrukade</div>
+                        <div class="stat-value" id="stat-redeemed-count">0</div>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div class="search-box">
+                    <input type="text" id="table-search" placeholder="Sök på mottagare, köpare eller ID...">
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="active">Aktiva</button>
+                    <button class="filter-tab" data-filter="redeemed">Förbrukade</button>
+                    <button class="filter-tab" data-filter="all">Alla</button>
+                </div>
+
+                <!-- Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kod</th>
+                                <th>Mottagare</th>
+                                <th>Köpare</th>
+                                <th>Belopp</th>
+                                <th>Saldo</th>
+                                <th>Status</th>
+                                <th>Skapad</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cards-table-body">
+                            <tr><td colspan="7" style="text-align: center; padding: 2rem; color: #948A6F;">Laddar...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -673,6 +927,142 @@
                 redeemBtn.textContent = 'Lös in';
             }
         });
+
+        // ---- Main Tabs ----
+        let allCards = [];
+        let filteredCards = [];
+        let currentFilter = 'active';
+
+        document.querySelectorAll('.main-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+
+                // Update tab buttons
+                document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Update tab content
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById('tab-' + tabName).classList.add('active');
+
+                // Load cards if switching to overview
+                if (tabName === 'overview' && allCards.length === 0) {
+                    loadAllCards();
+                }
+            });
+        });
+
+        // ---- Filter Tabs ----
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                currentFilter = tab.dataset.filter;
+
+                // Update active state
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Re-render table
+                filterAndRenderCards();
+            });
+        });
+
+        // ---- Search ----
+        document.getElementById('table-search').addEventListener('input', (e) => {
+            filterAndRenderCards();
+        });
+
+        // ---- Load All Cards ----
+        async function loadAllCards() {
+            try {
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/gift_cards?select=*&order=created_at.desc`,
+                    { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` } }
+                );
+                allCards = await res.json();
+                updateStats();
+                filterAndRenderCards();
+            } catch (err) {
+                console.error('Failed to load cards:', err);
+                document.getElementById('cards-table-body').innerHTML =
+                    '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #cc0000;">Kunde inte ladda presentkort</td></tr>';
+            }
+        }
+
+        // ---- Update Stats ----
+        function updateStats() {
+            const activeCards = allCards.filter(c => c.status === 'active');
+            const redeemedCards = allCards.filter(c => c.status === 'redeemed');
+            const totalActiveValue = activeCards.reduce((sum, c) => sum + c.balance, 0);
+
+            document.getElementById('stat-active-value').textContent = totalActiveValue.toLocaleString('sv-SE') + ' kr';
+            document.getElementById('stat-active-count').textContent = activeCards.length;
+            document.getElementById('stat-redeemed-count').textContent = redeemedCards.length;
+        }
+
+        // ---- Filter and Render ----
+        function filterAndRenderCards() {
+            const searchTerm = document.getElementById('table-search').value.toLowerCase();
+
+            // Filter by status
+            let cards = allCards;
+            if (currentFilter === 'active') {
+                cards = cards.filter(c => c.status === 'active');
+            } else if (currentFilter === 'redeemed') {
+                cards = cards.filter(c => c.status === 'redeemed');
+            }
+
+            // Filter by search term
+            if (searchTerm) {
+                cards = cards.filter(c =>
+                    c.recipient_name?.toLowerCase().includes(searchTerm) ||
+                    c.buyer_name?.toLowerCase().includes(searchTerm) ||
+                    c.code?.toLowerCase().includes(searchTerm) ||
+                    c.id?.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            filteredCards = cards;
+            renderTable();
+        }
+
+        // ---- Render Table ----
+        function renderTable() {
+            const tbody = document.getElementById('cards-table-body');
+
+            if (filteredCards.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #948A6F;">Inga presentkort hittades</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredCards.map(card => `
+                <tr data-code="${card.code}">
+                    <td>
+                        <strong>${card.code}</strong>
+                        ${card.mode === 'test' ? '<span class="badge test">Test</span>' : ''}
+                    </td>
+                    <td>${card.recipient_name || '-'}</td>
+                    <td>${card.buyer_name || '-'}</td>
+                    <td>${card.amount} kr</td>
+                    <td><strong>${card.balance} kr</strong></td>
+                    <td><span class="badge ${card.status}">${
+                        card.status === 'active' ? 'Aktivt' :
+                        card.status === 'redeemed' ? 'Förbrukat' : 'Utgånget'
+                    }</span></td>
+                    <td>${new Date(card.created_at).toLocaleDateString('sv-SE')}</td>
+                </tr>
+            `).join('');
+
+            // Add click handlers
+            tbody.querySelectorAll('tr').forEach(row => {
+                row.addEventListener('click', () => {
+                    const code = row.dataset.code;
+                    // Switch to lookup tab and search for this card
+                    document.querySelector('.main-tab[data-tab="lookup"]').click();
+                    document.getElementById('code-input').value = code;
+                    lookupCard(code);
+                });
+            });
+        }
     </script>
 </body>
 </html>
